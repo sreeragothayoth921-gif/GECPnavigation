@@ -1,0 +1,254 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum LocationCategory {
+  LECTURE_HALL
+  LAB
+  OFFICE
+  LIBRARY
+  CANTEEN
+  WASHROOM
+  SEMINAR_HALL
+  ADMIN
+  FACILITY
+  ENTRANCE
+  PARKING
+  MEDICAL
+  STORE
+  OTHER
+}
+
+enum PathStatus {
+  OPEN
+  BLOCKED
+  CONSTRUCTION
+  RESTRICTED
+}
+
+enum Floor {
+  BASEMENT
+  GROUND
+  FIRST
+  SECOND
+}
+
+enum ReportCategory {
+  WRONG_LOCATION
+  BLOCKED_PATH
+  MISSING_LOCATION
+  INCORRECT_INFO
+  OTHER
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  RESOLVED
+  REJECTED
+}
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  passwordHash      String?
+  fullName          String?
+  avatarUrl         String?
+  role              UserRole  @default(USER)
+  googleId          String?   @unique
+  navigationPrefs   Json      @default("{}")
+  emailVerified     DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  lastLoginAt       DateTime?
+
+  savedPlaces       SavedPlace[]
+  navigationHistory NavigationSession[]
+  reports           UserReport[]
+  adminLogs         AdminLog[]
+
+  @@map("users")
+}
+
+model Building {
+  id              String   @id @default(cuid())
+  code            String   @unique
+  name            String
+  description     String?
+  latitude        Float?
+  longitude       Float?
+  mapX            Float?
+  mapY            Float?
+  floors          Floor[]
+  polygonGeoJson  Json?
+  imageUrl        String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  locations       Location[]
+  @@map("buildings")
+}
+
+model Location {
+  id              String           @id @default(cuid())
+  buildingId      String
+  building        Building         @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  floor           Floor
+  code            String?
+  name            String
+  shortName       String?
+  category        LocationCategory
+  description     String?
+  mapX            Float
+  mapY            Float
+  latitude        Float?
+  longitude       Float?
+  isAccessible    Boolean          @default(true)
+  hasStairs       Boolean          @default(false)
+  hasElevator     Boolean          @default(false)
+  isEntrance      Boolean          @default(false)
+  isRestricted    Boolean          @default(false)
+  imageUrl        String?
+  status          String           @default("active")
+  metadata        Json             @default("{}")
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  pathsFrom       Path[]           @relation("PathSource")
+  pathsTo         Path[]           @relation("PathDestination")
+  savedBy         SavedPlace[]
+  navigationStart NavigationSession[] @relation("NavigationStart")
+  navigationEnd   NavigationSession[] @relation("NavigationEnd")
+  reports         UserReport[]
+
+  @@index([buildingId, floor])
+  @@index([category])
+  @@map("locations")
+}
+
+model Path {
+  id                String      @id @default(cuid())
+  sourceId          String
+  source            Location    @relation("PathSource", fields: [sourceId], references: [id], onDelete: Cascade)
+  destinationId     String
+  destination       Location    @relation("PathDestination", fields: [destinationId], references: [id], onDelete: Cascade)
+  distanceMeters    Float
+  walkingTimeSec    Int
+  direction         String?
+  floor             Floor
+  isBidirectional   Boolean     @default(true)
+  isAccessible      Boolean     @default(true)
+  hasStairs         Boolean     @default(false)
+  hasElevator       Boolean     @default(false)
+  status            PathStatus  @default(OPEN)
+  metadata          Json        @default("{}")
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  blockedPeriods    BlockedPath[]
+  reports           UserReport[]
+
+  @@index([sourceId])
+  @@index([destinationId])
+  @@index([status])
+  @@map("paths")
+}
+
+model BlockedPath {
+  id          String    @id @default(cuid())
+  pathId      String
+  path        Path      @relation(fields: [pathId], references: [id], onDelete: Cascade)
+  reason      String
+  blockedBy   String
+  startsAt    DateTime  @default(now())
+  endsAt      DateTime?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+
+  @@map("blocked_paths")
+}
+
+model SavedPlace {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  locationId  String
+  location    Location  @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  label       String?
+  createdAt   DateTime  @default(now())
+
+  @@unique([userId, locationId])
+  @@map("saved_places")
+}
+
+model NavigationSession {
+  id                  String   @id @default(cuid())
+  userId              String?
+  user                User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  startLocationId     String
+  startLocation       Location @relation("NavigationStart", fields: [startLocationId], references: [id])
+  endLocationId       String
+  endLocation         Location @relation("NavigationEnd", fields: [endLocationId], references: [id])
+  pathIds             String[]
+  totalDistanceMeters Float
+  estimatedTimeSec    Int
+  actualTimeSec       Int?
+  startedAt           DateTime @default(now())
+  completedAt         DateTime?
+  mode                String   @default("walking")
+
+  @@map("navigation_sessions")
+}
+
+model UserReport {
+  id            String        @id @default(cuid())
+  userId        String?
+  user          User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  category      ReportCategory
+  description   String
+  locationId    String?
+  location      Location?     @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  pathId        String?
+  path          Path?         @relation(fields: [pathId], references: [id], onDelete: SetNull)
+  status        ReportStatus  @default(PENDING)
+  adminNotes    String?
+  createdAt     DateTime      @default(now())
+  resolvedAt    DateTime?
+
+  @@map("user_reports")
+}
+
+model AdminLog {
+  id          String   @id @default(cuid())
+  adminId     String
+  admin       User     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  action      String
+  entityType  String?
+  entityId    String?
+  oldValue    Json?
+  newValue    Json?
+  createdAt   DateTime @default(now())
+
+  @@map("admin_logs")
+}
+
+model CampusSettings {
+  id                String  @id @default("singleton")
+  defaultWalkingSpeedKmh Float @default(5)
+  mapCenterLat      Float   @default(10.8500)
+  mapCenterLng      Float   @default(76.3500)
+  mapZoom           Float   @default(18)
+  updatedAt         DateTime @updatedAt
+
+  @@map("campus_settings")
+}

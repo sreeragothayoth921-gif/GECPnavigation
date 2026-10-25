@@ -1,0 +1,16 @@
+[
+  { "id": "bld-main", "code": "MAIN", "name": "Main Building", "description": "Main academic block of GEC Palakkad housing CSE department", "latitude": 10.8512, "longitude": 76.3520, "floors": ["GROUND", "FIRST", "SECOND"] },
+  { "id": "bld-eee", "code": "EEE", "name": "EEE Block", "description": "Electrical and Electronics Engineering department", "latitude": 10.8508, "longitude": 76.3530, "floors": ["GROUND", "FIRST", "SECOND"] },
+  { "id": "bld-it", "code": "IT_BLOCK", "name": "IT Block", "description": "Information Technology department block", "latitude": 10.8518, "longitude": 76.3525, "floors": ["GROUND", "FIRST", "SECOND"] },
+  { "id": "bld-mech", "code": "MECH", "name": "Mechanical Engineering Block", "description": "Mechanical Engineering department", "latitude": 10.8505, "longitude": 76.3540, "floors": ["GROUND", "FIRST"] },
+  { "id": "bld-civil", "code": "CIVIL", "name": "Civil Engineering Block", "description": "Civil Engineering department", "latitude": 10.8500, "longitude": 76.3535, "floors": ["GROUND", "FIRST"] },
+  { "id": "bld-chem", "code": "CHEM", "name": "Chemistry Block", "description": "Chemistry department and labs", "latitude": 10.8515, "longitude": 76.3545, "floors": ["GROUND", "FIRST"] },
+  { "id": "bld-physics", "code": "PHYSICS", "name": "Physics Block", "description": "Physics department and labs", "latitude": 10.8520, "longitude": 76.3540, "floors": ["GROUND", "FIRST"] },
+  { "id": "bld-math", "code": "MATH", "name": "Mathematics Block", "description": "Mathematics department", "latitude": 10.8522, "longitude": 76.3535, "floors": ["GROUND"] },
+  { "id": "bld-admin", "code": "ADMIN", "name": "Administrative Block", "description": "Administrative office and accounts", "latitude": 10.8510, "longitude": 76.3510, "floors": ["GROUND"] },
+  { "id": "bld-library", "code": "LIBRARY", "name": "Central Library", "description": "Central library with reading rooms and digital section", "latitude": 10.8507, "longitude": 76.3515, "floors": ["GROUND", "FIRST"] },
+  { "id": "bld-ccf", "code": "CCF", "name": "Central Computing Facility", "description": "Central computing facility with labs", "latitude": 10.8516, "longitude": 76.3518, "floors": ["GROUND", "FIRST"] },
+  { "id": "bld-tbi", "code": "TBI", "name": "Technology Business Incubator", "description": "TBI for startups and innovation", "latitude": 10.8525, "longitude": 76.3520, "floors": ["GROUND"] },
+  { "id": "bld-canteen", "code": "CANTEEN", "name": "College Canteen", "description": "Main college canteen and food court", "latitude": 10.8503, "longitude": 76.3525, "floors": ["GROUND"] },
+  { "id": "bld-gate", "code": "GATE", "name": "Main Gate", "description": "Main entrance gate of the campus", "latitude": 10.8495, "longitude": 76.3510, "floors": ["GROUND"] }
+]

@@ -1,0 +1,18 @@
+export type {
+  User,
+  Building,
+  Location,
+  Path,
+  BlockedPath,
+  SavedPlace,
+  NavigationSession,
+  UserReport,
+  AdminLog,
+  CampusSettings,
+  LocationCategory,
+  PathStatus,
+  Floor,
+  ReportCategory,
+  ReportStatus,
+  UserRole,
+} from "@prisma/client";
